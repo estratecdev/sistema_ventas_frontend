@@ -8,16 +8,6 @@ import { ForgotPasswordComponent } from './pages/public/authentication/forgot-pa
 import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 
 export const routes: Routes = [
-
-    {
-        path: 'auth',
-        component: PublicLayoutComponent,
-        children: [
-          { path: 'sign-in', component: SignInComponent },
-          { path: 'sign-up', component: SignUpComponent },
-          { path: 'forgot-password', component: ForgotPasswordComponent }
-        ]
-    },
     {
         path: '',
         component: PrivateLayoutComponent,
@@ -37,6 +27,15 @@ export const routes: Routes = [
             { path: 'usuarios', loadChildren: () => import('./pages/private/usuarios/usuarios.module').then(m => m.UsuariosModule) },
             { path: 'ventas', loadChildren: () => import('./pages/private/ventas/ventas.module').then(m => m.VentasModule) },
             { path: 'ventas-al-credito', loadChildren: () => import('./pages/private/ventas-al-credito/ventas-al-credito.module').then(m => m.VentasAlCreditoModule) }
+        ]
+    },
+    {
+        path: 'auth',
+        component: PublicLayoutComponent,
+        children: [
+          { path: 'sign-in', component: SignInComponent },
+          { path: 'sign-up', component: SignUpComponent },
+          { path: 'forgot-password', component: ForgotPasswordComponent }
         ]
     },
     {

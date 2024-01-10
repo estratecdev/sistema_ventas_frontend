@@ -40,7 +40,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync ./dist/sistema-ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }}
+          aws s3 sync ./dist/sistema-ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
         env:
           ENVIRONMENT_NAME: prod
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -54,56 +54,56 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 
-deploy-prod:
-  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-  runs-on: ubuntu-latest
+  deploy-prod:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
 
-  env:
-    ENVIRONMENT_NAME: prod
+    env:
+      ENVIRONMENT_NAME: prod
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'  # Ajusta la versión de Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'  # Ajusta la versión de Node.js
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Build Angular app
-      run: npm run build  # Cambia el comando si usas otro entorno (dev o prod)
+      - name: Build Angular app
+        run: npm run build  # Cambia el comando si usas otro entorno (dev o prod)
 
-    - name: Create S3 Bucket
-      run: |
-        aws s3 mb s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --region us-east-1
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Create S3 Bucket
+        run: |
+          aws s3 mb s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --region us-east-1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - name: Deploy to S3
-      run: |
-        aws s3 sync ./dist/sistema-ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }}
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Deploy to S3
+        run: |
+          aws s3 sync ./dist/sistema-ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - name: Create CloudFront Distribution
-      run: |
-        DISTRIBUTION_ID=$(aws cloudfront create-distribution --origin-domain-name estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }}.s3.amazonaws.com --query 'Distribution.Id' --output text)
-        echo "CloudFront Distribution ID: $DISTRIBUTION_ID"
-        echo "::set-env name=CLOUDFRONT_DISTRIBUTION_ID::$DISTRIBUTION_ID"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: us-east-1  # Cambia a tu región si es diferente
+      - name: Create CloudFront Distribution
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront create-distribution --origin-domain-name estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }}.s3.amazonaws.com --query 'Distribution.Id' --output text)
+          echo "CloudFront Distribution ID: $DISTRIBUTION_ID"
+          echo "::set-env name=CLOUDFRONT_DISTRIBUTION_ID::$DISTRIBUTION_ID"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1  # Cambia a tu región si es diferente
 
-    - name: Invalidate CloudFront cache
-      run: |
-        aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        CLOUDFRONT_DISTRIBUTION_ID: $CLOUDFRONT_DISTRIBUTION_ID
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CLOUDFRONT_DISTRIBUTION_ID: $CLOUDFRONT_DISTRIBUTION_ID

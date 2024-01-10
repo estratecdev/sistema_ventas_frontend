@@ -1,0 +1,81 @@
+name: Deploy Angular to AWS
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy-dev:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT_NAME: dev  # Define el nombre del entorno para dev
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Ajusta la versión de Node.js
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Angular app
+      run: npm run build -- --configuration=production  # Cambia el comando si usas otro entorno (dev o prod)
+
+    - name: Deploy to S3
+      run: |
+        aws s3 sync ./dist/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
+      env:
+        ENVIRONMENT_NAME: ${{ matrix.environment }}
+
+    - name: Invalidate CloudFront cache
+      run: |
+        aws cloudfront create-invalidation --distribution-id YOUR_CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy-prod:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    env:
+      ENVIRONMENT_NAME: prod  # Define el nombre del entorno para dev
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Ajusta la versión de Node.js
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Angular app
+      run: npm run build -- --configuration=production  # Cambia el comando si usas otro entorno (dev o prod)
+
+    - name: Deploy to S3
+      run: |
+        aws s3 sync ./dist/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
+      env:
+        ENVIRONMENT_NAME: ${{ matrix.environment }}
+
+    - name: Invalidate CloudFront cache
+      run: |
+        aws cloudfront create-invalidation --distribution-id YOUR_CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

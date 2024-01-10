@@ -14,8 +14,6 @@ jobs:
   deploy-dev:
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
-    env:
-      ENVIRONMENT_NAME: dev  # Define el nombre del entorno para dev
 
     steps:
     - name: Checkout code
@@ -36,7 +34,7 @@ jobs:
       run: |
         aws s3 sync ./dist/sistema-ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
       env:
-        ENVIRONMENT_NAME: ${{ matrix.environment }}
+        ENVIRONMENT_NAME: dev
 
     - name: Invalidate CloudFront cache
       run: |
@@ -48,9 +46,6 @@ jobs:
   deploy-prod:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
-    env:
-      ENVIRONMENT_NAME: prod  # Define el nombre del entorno para dev
 
     steps:
     - name: Checkout code
@@ -71,7 +66,7 @@ jobs:
       run: |
         aws s3 sync ./dist/sistema-ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
       env:
-        ENVIRONMENT_NAME: ${{ matrix.environment }}
+        ENVIRONMENT_NAME: prod
 
     - name: Invalidate CloudFront cache
       run: |

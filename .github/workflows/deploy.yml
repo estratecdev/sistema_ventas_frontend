@@ -69,7 +69,7 @@ jobs:
 
     - name: Deploy to S3
       run: |
-        aws s3 sync ./dist/sistema_ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
+        aws s3 sync ./dist/sistema-ventas/browser/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
       env:
         ENVIRONMENT_NAME: ${{ matrix.environment }}
 

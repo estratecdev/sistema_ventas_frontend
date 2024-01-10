@@ -65,11 +65,11 @@ jobs:
       run: npm install
 
     - name: Build Angular app
-      run: npm run build -- --configuration=production  # Cambia el comando si usas otro entorno (dev o prod)
+      run: npm run build  # Cambia el comando si usas otro entorno (dev o prod)
 
     - name: Deploy to S3
       run: |
-        aws s3 sync ./dist/ s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
+        aws s3 sync ./dist/sistema_ventas/browser s3://estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }} --delete
       env:
         ENVIRONMENT_NAME: ${{ matrix.environment }}
 

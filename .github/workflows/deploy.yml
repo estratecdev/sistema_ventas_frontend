@@ -89,6 +89,12 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: Update CloudFront Distribution
+        run: |
+          aws cloudfront update-distribution --id E2AAYO177RZYUO --origin S3Origin="{DomainName=estratec-sistema-ventas-prod.s3.amazonaws.com,OriginAccessIdentity=}" --default-root-object index.html --region us-east-1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Invalidate CloudFront cache
         run: |

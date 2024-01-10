@@ -92,13 +92,13 @@ jobs:
 
       - name: Create CloudFront Distribution
         run: |
-          DISTRIBUTION_ID=$(aws cloudfront create-distribution --origin-domain-name estratec-sistema-ventas-${{ env.ENVIRONMENT_NAME }}.s3.amazonaws.com --query 'Distribution.Id' --output text)
-          echo "CloudFront Distribution ID: $DISTRIBUTION_ID"
-          echo "::set-env name=CLOUDFRONT_DISTRIBUTION_ID::$DISTRIBUTION_ID"
+          DISTRIBUTION_ID=$(aws cloudfront create-distribution --origin-domain-name estratec-sistema-ventas-prod.s3.amazonaws.com --query 'Distribution.Id' --output text)
+          echo "CloudFront Distribution ID=$DISTRIBUTION_ID" >> $GITHUB_ENV
         env:
+          ENVIRONMENT_NAME: prod
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1  # Cambia a tu región si es diferente
+          AWS_DEFAULT_REGION: us-east-1
 
       - name: Invalidate CloudFront cache
         run: |
